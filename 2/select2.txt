@@ -1,0 +1,24 @@
+SELECT g.name AS genre, COUNT(a.id) AS artist_count
+FROM genres g
+JOIN artists a ON g.id = a.id  -- Предполагается, что у исполнителей есть поле genre_id, ссылающееся на жанр
+GROUP BY g.name;
+
+SELECT COUNT(t.id) AS tracks_count
+FROM tracks t
+JOIN albums a ON t.album_id = a.id
+WHERE a.release_year BETWEEN 2019 AND 2020;
+
+SELECT a.title AS album_title, AVG(t.duration) AS average_duration
+FROM albums a
+JOIN tracks t ON a.id = t.album_id
+GROUP BY a.title;
+
+SELECT DISTINCT a.name AS artist_name
+FROM artists a
+LEFT JOIN albums al ON a.id = al.id AND al.release_year = 2020
+WHERE al.id IS NULL;
+
+SELECT c.title AS compilation_title
+FROM compilations c
+JOIN artists a ON c.id = a.id
+WHERE a.name = 'Queen';
