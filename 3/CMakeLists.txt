@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.20)
+set(PostgreSQL_ADDITIONAL_VERSIONS 12)
+project(HomeWorksSQL_3)
+add_subdirectory("C:\\Program Files\\libpqxx-7.9.2" libpqxx-build)
+add_executable(HomeWorksSQL_3 main.cpp)
+target_compile_features(HomeWorksSQL_3 PRIVATE cxx_std_17)
+target_link_libraries(HomeWorksSQL_3 PRIVATE pqxx)
