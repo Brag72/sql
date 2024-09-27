@@ -41,10 +41,10 @@ public:
 		pqxx::transaction t{ con };
 
 		pqxx::result ID = t.exec("INSERT INTO client(firstname, secondname, email)"
-			"VALUES('" + FName + "', '" + SName + "', '" + Mail + "')"
+			"VALUES('" + t.esc(FName) + "', '" + t.esc(SName) + "', '" + t.esc(Mail) + "')"
 			"RETURNING id;");
 		t.exec("INSERT INTO phone(client_id, phonenumber)"
-			"VALUES('" + ID[0][0].as<string>() + "', '" + PNumber + "')");
+			"VALUES('" + t.esc(ID[0][0].as<string>()) + "', '" + t.esc(PNumber) + "')");
 		t.commit();
 	}
 
@@ -55,23 +55,23 @@ public:
 		if (FName != "")
 		{
 			string query1 = "UPDATE client "
-				"SET firstname='" + FName + "' "
-				"WHERE id='" + ID + "'";
+				"SET firstname='" + t.esc(FName) + "' "
+				"WHERE id='" + t.esc(ID) + "'";
 			t.exec(query1);
 		}
 		if (SName != "")
 		{
 			string query2 = "UPDATE client "
-				"SET secondname='" + SName + "' "
-				"WHERE id='" + ID + "'";
+				"SET secondname='" + t.esc(SName) + "' "
+				"WHERE id='" + t.esc(ID) + "'";
 			t.exec(query2);
 
 		}
 		if (Mail != "")
 		{
 			string query3 = "UPDATE client "
-				"SET email='" + Mail + "' "
-				"WHERE id='" + ID + "'";
+				"SET email='" + t.esc(Mail) + "' "
+				"WHERE id='" + t.esc(ID) + "'";
 			t.exec(query3);
 		}
 		t.commit();
@@ -80,15 +80,15 @@ public:
 	void del_phone(pqxx::connection& con, string ID, string PNumber)
 	{
 		pqxx::transaction t{ con };
-		t.exec("DELETE FROM phone WHERE client_id='" + ID + "' AND phonenumber='" + PNumber + "'");
+		t.exec("DELETE FROM phone WHERE client_id='" + t.esc(ID) + "' AND phonenumber='" + PNumber + "'");
 		t.commit();
 	}
 	
 	void del_client(pqxx::connection& con, string ID)
 	{
 		pqxx::transaction t{ con };
-		t.exec("DELETE FROM phone WHERE client_id='" + ID + "'");
-		t.exec("DELETE FROM client WHERE id='" + ID + "'");
+		t.exec("DELETE FROM phone WHERE client_id='" + t.esc(ID) + "'");
+		t.exec("DELETE FROM client WHERE id='" + t.esc(ID) + "'");
 		t.commit();
 	}
 
@@ -97,12 +97,12 @@ public:
 		pqxx::transaction t{ con };
 		
 		for (auto [id, firstname, secondname, email] : t.query<string, string, string, string>
-			("SELECT * FROM client WHERE firstname='" + S + "' OR secondname='" + S + "' OR email='" + S + "' OR id IN(SELECT client_id FROM phone WHERE phonenumber='" +S+"')"))
+			("SELECT * FROM client WHERE firstname='" + t.esc(S) + "' OR secondname='" + t.esc(S) + "' OR email='" + t.esc(S) + "' OR id IN(SELECT client_id FROM phone WHERE phonenumber='" + t.esc(S) +"')"))
 		{
 			cout << id <<"------" << firstname << " ----- " << secondname << "----- " << email;
 
 			for (auto [phonenumber] : t.query<string>
-				("SELECT phonenumber FROM phone WHERE client_id='" + id + "'"))
+				("SELECT phonenumber FROM phone WHERE client_id='" + t.esc(id) + "'"))
 			{
 				cout << "------" << phonenumber ;
 			}
@@ -132,11 +132,11 @@ int main()
 		sql.add_client(con, "Andrew", "Cher", "1234@Mail", "+000000");
 		sql.add_phone(con, "1", "852392");
 		sql.change_client(con,"1", "Artem", "Zelenyi", "Dont1234@mail");
-		sql.del_phone(con, "1", "987654664");
-		sql.del_client(con, "1");
+		//sql.del_phone(con, "1", "987654664");
+		//sql.del_client(con, "1");
 		sql.add_client(con, "Ilya", "Klyauz", "bobr@kurwa.pl", "+0000000000000");
-		sql.select_client(con, "Klyauz");
-		sql.select_client(con, "Artem");
+		//sql.select_client(con, "Klyauz");
+		//sql.select_client(con, "Artem");
 
 	}
 	catch (const std::exception& e)
